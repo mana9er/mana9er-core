@@ -35,11 +35,9 @@ class Core(QtCore.QObject):
         self.logger = log.Logger('mana9er', self.config.log_level)
         self.server_running = False
         self.server = None
-        self.quit_flag = False
         self.server_logs = []
-        self.plugins = []
         for plugin_name in self.config.plugin_names:
-            self.plugins.append(importlib.import_module(plugin_name + '.entrance').entrance(self))
+            importlib.import_module(plugin_name + '.entrance').entrance(self)
         self.start_server()
 
     def start_server(self, cmd = None):
@@ -63,7 +61,8 @@ class Core(QtCore.QObject):
 
     @QtCore.Slot()
     def on_server_newlog(self):
-        new_lines = self.server.readAll().data().decode('utf-8').splitlines()
+        server_outputs = QtCore.QTextStream(self.server)
+        new_lines = server_outputs.readAll().splitlines()
         for line in new_lines:
             self.server_logs.append(line)
             self.logger.server_output(line)
@@ -74,16 +73,13 @@ class Core(QtCore.QObject):
         self.server_running = False
         self.server = None
         self.server_stop.emit()
-        if self.quit_flag: self.safe_quit()
-
-    def safe_quit(self):
-        self.plugins.clear()
-        self.core_quit.emit()
 
     def quit(self):
         if self.server_running:
-            self.quit_flag = True
             self.stop_server()
-            return
-        else: self.safe_quit()
+            self.server.waitForFinished()  # self.on_server_stop called and self.server_stop emitted
+        self.server_newlog.disconnect()
+        self.server_start.disconnect()
+        self.server_stop.disconnect()
+        self.core_quit.emit()
 
