@@ -4,6 +4,7 @@ import importlib
 import json
 import codecs
 from PySide2 import QtCore
+import log
 
 # On core starting:
 # load config
@@ -22,25 +23,19 @@ from PySide2 import QtCore
 # stop event loop
 
 
-def wrap_config(config):
-    res = object()
-    res.default_entrance = config['default_entrance']
-    res.plugin_names = config['plugins']
-    return res
-
-
 class Core(QtCore.QObject):
     server_start = QtCore.Signal()
     server_stop = QtCore.Signal()
     server_newlog = QtCore.Signal(list)
+    core_quit = QtCore.Signal()
 
-    def __init__(self, config_filename, app):
+    def __init__(self, config):
         super(Core, self).__init__()
-        self.app = app
+        self.config = config
+        self.logger = log.Logger('mana9er', self.config.log_level)
         self.server_running = False
         self.server = None
         self.quit_flag = False
-        self.config = wrap_config(json.load(codecs.open(config_filename, mode='r', encoding='utf-8')))
         self.server_logs = []
         self.plugins = []
         for plugin_name in self.config.plugin_names:
@@ -49,7 +44,7 @@ class Core(QtCore.QObject):
 
     def start_server(self, cmd = None):
         if self.server_running:
-            logger.warning('Core.start_server called while server is running')
+            self.logger.warning('Core.start_server called while server is running')
             return
         if not cmd:
             cmd = self.config.default_entrance
@@ -62,17 +57,19 @@ class Core(QtCore.QObject):
 
     def stop_server(self):
         if not self.server_running:
-            logger.warning('Core.stop_server called while server is not running')
+            self.logger.warning('Core.stop_server called while server is not running')
             return
         self.server.write('stop\n')
 
+    @QtCore.Slot()
     def on_server_newlog(self):
-        newlog = self.server.readAll().data().decode('utf-8').splitlines()
-        for line in newlog:
+        new_lines = self.server.readAll().data().decode('utf-8').splitlines()
+        for line in new_lines:
             self.server_logs.append(line)
-            logger.server_output(line)
-        self.server_newlog.emit(newlog)
+            self.logger.server_output(line)
+        self.server_newlog.emit(new_lines)
 
+    @QtCore.Slot()
     def on_server_stop(self):
         self.server_running = False
         self.server = None
@@ -81,7 +78,7 @@ class Core(QtCore.QObject):
 
     def safe_quit(self):
         self.plugins.clear()
-        self.app.quit()
+        self.core_quit.emit()
 
     def quit(self):
         if self.server_running:
@@ -90,8 +87,3 @@ class Core(QtCore.QObject):
             return
         else: self.safe_quit()
 
-
-if __name__ == '__main__':
-    app = QtCore.QCoreApplication()
-    core = Core('config.json', app)
-    sys.exit(app.exec_())

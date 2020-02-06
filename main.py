@@ -7,7 +7,7 @@ from PySide2 import QtCore
 import core
 
 parser = argparse.ArgumentParser(description='')
-parser.add_argument('-f', '--config', type=str, default='config.json', help='Start core with a certain config file')
+parser.add_argument('-c', '--config', type=str, default='config.json', help='Start core with a certain config file')
 args = parser.parse_args()
 
 
@@ -15,16 +15,19 @@ def load_config(filename):
     return json.load(codecs.open(filename, mode='r', encoding='utf-8'))
 
 
-def wrap_config(config):
-    res = object()
-    res.default_entrance = config['default_entrance']
-    res.plugin_names = config['plugins']
-    return res
+class Config(object):
+    def __init__(self, config_dict):
+        self.default_entrance = config_dict['default_entrance']
+        self.plugin_names = config_dict['plugins']
+        if 'log_level' in config_dict:
+            self.log_level = config_dict['log_level']
+        else:
+            self.log_level = 1  # INFO
 
 
 if __name__ == '__main__':
-    configs = load_config(args.config)
-
     app = QtCore.QCoreApplication()
-    exec_core = core.Core(wrap_config(configs), app)
+    configs = Config(load_config(args.config))
+    core_inst = core.Core(configs)
+    core_inst.core_quit.connect(app.quit)
     sys.exit(app.exec_())
