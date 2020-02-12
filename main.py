@@ -2,7 +2,7 @@ import sys
 import json
 import codecs
 import argparse
-from PySide2 import QtCore
+from PyQt5 import QtCore
 
 import core
 
@@ -12,7 +12,8 @@ args = parser.parse_args()
 
 
 def load_config(filename):
-    return json.load(codecs.open(filename, mode='r', encoding='utf-8'))
+    with codecs.open(filename, mode='r', encoding='utf-8') as f:
+        return json.load(f)
 
 
 class Config(object):
@@ -22,7 +23,8 @@ class Config(object):
         if 'log_level' in config_dict:
             self.log_level = config_dict['log_level']
         else:
-            self.log_level = 1  # INFO
+            self.log_level = 1  # INFO level
+        self.prefix = config_dict['prefix']
 
 
 if __name__ == '__main__':
@@ -30,4 +32,4 @@ if __name__ == '__main__':
     configs = Config(load_config(args.config))
     core_inst = core.Core(configs)
     core_inst.core_quit.connect(app.quit)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
