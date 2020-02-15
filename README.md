@@ -1,2 +1,2 @@
 # mc-mana9er
-A scalable management tool for minecraft server
+A scalable framework for management tool of minecraft server
