@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys
+import os
 import importlib
 from PyQt5 import QtCore
 import log
@@ -31,6 +31,7 @@ class Core(QtCore.QObject):
 
     def __init__(self, config):
         super(Core, self).__init__()
+        self.init_cwd = os.getcwd()
         self.config = config
         self.logger = log.Logger('mana9er', self.config.log_level)
         self.server_running = False
@@ -47,16 +48,18 @@ class Core(QtCore.QObject):
     def get_builtin_callback(self):
         return dict(quit=self.quit)
 
-    def start_server(self, cmd = None):
+    def start_server(self, entrance=None):
         if self.server_running:
             self.logger.warning('Core.start_server called while server is running')
             return
-        if not cmd:
-            cmd = self.config.default_entrance
+        if not entrance:
+            entrance = self.config.default_entrance
+        os.chdir(self.init_cwd)
+        os.chdir(entrance.wd)
         self.server = QtCore.QProcess()
         self.server.readyRead.connect(self.on_server_output)
         self.server.finished.connect(self.on_server_stop)
-        self.server.start(cmd)
+        self.server.start(entrance.exec)
         self.server_running = True  # TODO: add success check
         self.sig_server_start.emit()
 
@@ -75,6 +78,7 @@ class Core(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def on_server_output(self):
+        self.logger.debug('core.on_server_output called')
         server_outputs = QtCore.QTextStream(self.server)
         new_lines = server_outputs.readAll().splitlines()
         for line in new_lines:
@@ -84,6 +88,7 @@ class Core(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def on_server_stop(self):
+        self.logger.debug('self.on_server_stop called')
         self.server_running = False
         self.server = None
         self.sig_server_stop.emit()
@@ -105,12 +110,14 @@ class Core(QtCore.QObject):
         self.core_quit.emit()
 
     def builtin_cmd(self, cmd):
+        self.logger.debug('core.builtin_cmd called with cmd={}'.format(cmd))
         for key in self.builtin_callback:
             if cmd == self.config.prefix + key:
                 self.builtin_callback[key]()
 
     @QtCore.pyqtSlot(str)
     def command(self, cmd):
+        self.logger.debug('core.command called')
         if cmd.startswith(self.config.prefix):
             self.builtin_cmd(cmd)
         else:
@@ -119,4 +126,5 @@ class Core(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def on_eof_input(self):
+        self.logger.debug('core.on_eof_input called')
         self.logger.warning('EOF read from console. Type {}quit to exit mana9er'.format(self.config.prefix))

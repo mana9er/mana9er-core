@@ -16,9 +16,15 @@ def load_config(filename):
         return json.load(f)
 
 
+class Entrance(object):
+    def __init__(self, entrance_dict):
+        self.wd = entrance_dict['wd']
+        self.exec = entrance_dict['exec']
+
+
 class Config(object):
     def __init__(self, config_dict):
-        self.default_entrance = config_dict['default_entrance']
+        self.default_entrance = Entrance(config_dict['default_entrance'])
         self.plugin_names = config_dict['plugins']
         if 'log_level' in config_dict:
             self.log_level = config_dict['log_level']
@@ -28,7 +34,7 @@ class Config(object):
 
 
 if __name__ == '__main__':
-    app = QtCore.QCoreApplication()
+    app = QtCore.QCoreApplication(sys.argv)
     configs = Config(load_config(args.config))
     core_inst = core.Core(configs)
     core_inst.core_quit.connect(app.quit)

@@ -7,7 +7,7 @@ class ConsoleListener(QtCore.QObject):
     eof_input = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
-        super(ConsoleListener, self).__init__(self, parent)
+        super(ConsoleListener, self).__init__(parent)
         if sys.platform.startswith('win32'):
             import ctypes
             k32 = ctypes.WinDLL('kernel32', use_last_error=True)
@@ -18,7 +18,7 @@ class ConsoleListener(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def receive(self):
-        line = sys.stdin.readline()
+        line = sys.stdin.readline().strip()
         if not line:
             self.eof_input.emit()
         else:
