@@ -46,12 +46,15 @@ class Core(QtCore.QObject):
         self.start_server()
 
     def get_builtin_callback(self):
-        return dict(quit=self.quit)
+        # Callback functions provided by Core itself
+        return dict(start=self.start_server, stop=self.stop_server, restart=self.restart_server, quit=self.quit)
 
     def start_server(self, entrance=None):
+        self.logger.debug('core.start_server called')
         if self.server_running:
             self.logger.warning('Core.start_server called while server is running')
             return
+        self.logger.info('Starting server...')
         if not entrance:
             entrance = self.config.default_entrance
         os.chdir(self.init_cwd)
@@ -64,6 +67,7 @@ class Core(QtCore.QObject):
         self.sig_server_start.emit()
 
     def write_server(self, content):
+        self.logger.debug('core.write_server called')
         content += '\n'
         if self.server_running:
             self.server.write(bytes(content, encoding='utf-8'))
@@ -71,10 +75,19 @@ class Core(QtCore.QObject):
             self.logger.warning('core.write_server called while the server is not running')
 
     def stop_server(self):
+        self.logger.debug('core.stop_server called')
         if not self.server_running:
             self.logger.warning('Core.stop_server called while server is not running')
             return
+        self.logger.info('Stopping server...')
         self.write_server('stop')
+
+    def restart_server(self):
+        self.logger.debug('core.restart_server called')
+        self.logger.info('Restarting server...')
+        self.stop_server()
+        self.server.waitForFinished()  # self.on_server_stop called and self.sig_server_stop emitted
+        self.start_server()
 
     @QtCore.pyqtSlot()
     def on_server_output(self):
@@ -102,10 +115,6 @@ class Core(QtCore.QObject):
             self.server.waitForFinished()  # self.on_server_stop called and self.sig_server_stop emitted
             self.logger.info('The server has been stopped')
         self.logger.info('Safe quiting...')
-        self.logger.debug('disconnecting all the signals')
-        self.sig_server_output.disconnect()
-        self.sig_server_start.disconnect()
-        self.sig_server_stop.disconnect()
         self.logger.debug('core.core_quit emitted, event loop is going to stop')
         self.core_quit.emit()
 
