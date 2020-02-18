@@ -7,7 +7,7 @@ import listener
 
 # On core starting:
 # load config
-# load plugins (construct instances of plugin entrance, they connect necessary signals)
+# load plugins (construct instances of plugin, they connect necessary signals)
 # create process for mc server and connect listener
 # start mc server (with server_start signal emitted)
 
@@ -20,6 +20,8 @@ import listener
 # stop server and emit server_stop
 # destruct instances of plugin entrance
 # stop event loop
+
+plugins = []
 
 
 class Core(QtCore.QObject):
@@ -40,8 +42,11 @@ class Core(QtCore.QObject):
         console_listener = listener.ConsoleListener(self)
         console_listener.newline.connect(self.command)
         console_listener.eof_input.connect(self.on_eof_input)
+
+        # load plugins
         for plugin_name in self.config.plugin_names:
-            importlib.import_module(plugin_name + '.entrance').Entrance(self)
+            plugin_logger = log.Logger(plugin_name, self.config.log_level)
+            plugins.append(importlib.import_module(plugin_name).instance(plugin_logger, self))  # import plugins, and call their init functions
         self.builtin_callback = self.get_builtin_callback()
         self.start_server()
 
