@@ -8,6 +8,9 @@ class ConsoleListener(QtCore.QObject):
 
     def __init__(self, parent=None):
         super(ConsoleListener, self).__init__(parent)
+        
+    @QtCore.pyqtSlot()
+    def create_notifier(self):
         if sys.platform.startswith('win32'):
             import ctypes
             k32 = ctypes.WinDLL('kernel32', use_last_error=True)
