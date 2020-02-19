@@ -40,14 +40,9 @@ class Core(QtCore.QObject):
         self.server = None
         self.server_logs = []
 
-        listener_thread = QtCore.QThread(self)
-        console_listener = listener.ConsoleListener()
-        console_listener.moveToThread(listener_thread)
+        console_listener = listener.ConsoleListener(self)
         console_listener.newline.connect(self.command)
         console_listener.eof_input.connect(self.on_eof_input)
-        self.core_quit.connect(listener_thread.quit)
-        listener_thread.started.connect(console_listener.create_notifier)
-        listener_thread.start()
 
         # load plugins
         for plugin_name in self.config.plugin_names:
