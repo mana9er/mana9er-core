@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import os
+import sys
 import importlib
 from PyQt5 import QtCore
 import log
@@ -33,8 +34,11 @@ class Core(QtCore.QObject):
 
     def __init__(self, config):
         super(Core, self).__init__()
-        self.init_cwd = os.getcwd()
         self.config = config
+
+    @QtCore.pyqtSlot()
+    def init(self):
+        self.init_cwd = os.getcwd()
         self.logger = log.Logger('mana9er', self.config.log_level)
         self.server_running = False
         self.server = None
@@ -42,7 +46,6 @@ class Core(QtCore.QObject):
 
         console_listener = listener.ConsoleListener(self)
         console_listener.newline.connect(self.command)
-        console_listener.eof_input.connect(self.on_eof_input)
 
         # load plugins
         for plugin_name in self.config.plugin_names:
@@ -123,6 +126,7 @@ class Core(QtCore.QObject):
         self.logger.info('Safe quiting...')
         self.logger.debug('core.core_quit emitted, event loop is going to stop')
         self.core_quit.emit()
+        sys.exit(0)
 
     def builtin_cmd(self, cmd):
         self.logger.debug('core.builtin_cmd called with cmd={}'.format(cmd))
@@ -138,8 +142,3 @@ class Core(QtCore.QObject):
         else:
             self.write_server(cmd)
         self.sig_command.emit(cmd)
-
-    @QtCore.pyqtSlot()
-    def on_eof_input(self):
-        self.logger.debug('core.on_eof_input called')
-        self.logger.warning('EOF read from console. Type {}quit to exit mana9er'.format(self.config.prefix))
