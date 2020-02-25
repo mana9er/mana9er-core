@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import os
 import sys
 import importlib
@@ -22,8 +21,6 @@ import listener
 # destruct instances of plugin entrance
 # stop event loop
 
-plugins = []
-
 
 class Core(QtCore.QObject):
     sig_server_start = QtCore.pyqtSignal()
@@ -44,19 +41,21 @@ class Core(QtCore.QObject):
         self.server = None
         self.server_logs = []
 
-        console_listener = listener.ConsoleListener(self)
-        console_listener.newline.connect(self.command)
-
         # load plugins
         for plugin_name in self.config.plugin_names:
             plugin_logger = log.Logger(plugin_name, self.config.log_level)
-            plugins.append(importlib.import_module(plugin_name).instance(plugin_logger, self))  # import plugins, and call their init functions
-        self.builtin_callback = self.get_builtin_callback()
+            importlib.import_module(plugin_name).load(plugin_logger, self)  # import plugins, call init function
+        self.build_builtin_callback()
         self.start_server()
 
-    def get_builtin_callback(self):
+    def build_builtin_callback(self):
         # Callback functions provided by Core itself
-        return dict(start=self.start_server, stop=self.stop_server, restart=self.restart_server, quit=self.quit)
+        self.builtin_callback = dict(
+            start=self.start_server,
+            stop=self.stop_server,
+            restart=self.restart_server,
+            quit=self.quit
+        )
 
     def start_server(self, entrance=None):
         self.logger.debug('core.start_server called')
