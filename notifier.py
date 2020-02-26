@@ -4,11 +4,11 @@ import re
 
 class Notifier(QtCore.QObject):
     sig_output = QtCore.pyqtSignal(str)
-    sig_input = QtCore.pyqtSignal(utils.Player, str)
+    sig_input = QtCore.pyqtSignal(tuple)  # (utils.Player, str) tuple
 
     @QtCore.pyqtSlot(str)
     def on_command(self, cmd):
-        self.sig_input.emit(utils.GhostingPlayer(), cmd)
+        self.sig_input.emit((utils.GhostingPlayer(), cmd))
 
     @QtCore.pyqtSlot(list)
     def on_server_output(self, lines):
@@ -18,5 +18,5 @@ class Notifier(QtCore.QObject):
                 # some players said something
                 player = match_obj.group(1)
                 text = match_obj.group(2)
-                self.sig_input.emit(utils.Player(player), text)
+                self.sig_input.emit((utils.Player(player), text))
                 
