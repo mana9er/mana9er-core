@@ -1,7 +1,7 @@
 from PyQt5 import QtCore
 
 
-class Logger:
+class Logger(QtCore.QObject):
     sig_output = QtCore.pyqtSignal(str)
 
     def __init__(self, sender, profiles):
@@ -17,17 +17,21 @@ class Logger:
                 if i == 0:
                     self.sig_output.emit(message)
 
-    def error(self, message):
-        self.log('[{}/ERROR] {}'.format(self.sender, message), 3)
+    def error(self, message, time_stamp=None):
+        time_log = '[{}] '.format(time.strftime('%H:%M:%S')) if time_stamp is not None else ''
+        self.log('{}[{}/ERROR] {}'.format(time_log, self.sender, message), 3)
 
-    def warning(self, message):
-        self.log('[{}/WARN] {}'.format(self.sender, message), 2)
+    def warning(self, message, time_stamp=None):
+        time_log = '[{}] '.format(time.strftime('%H:%M:%S')) if time_stamp is not None else ''
+        self.log('{}[{}/ERROR] {}'.format(time_log, self.sender, message), 2)
 
-    def info(self, message):
-        self.log('[{}/INFO] {}'.format(self.sender, message), 1)
+    def info(self, message, time_stamp=None):
+        time_log = '[{}] '.format(time.strftime('%H:%M:%S')) if time_stamp is not None else ''
+        self.log('{}[{}/ERROR] {}'.format(time_log, self.sender, message), 1)
 
-    def debug(self, message):
-        self.log('[{}/DEBUG] {}'.format(self.sender, message), 0)
+    def debug(self, message, time_stamp=None):
+        time_log = '[{}] '.format(time.strftime('%H:%M:%S')) if time_stamp is not None else ''
+        self.log('{}[{}/ERROR] {}'.format(time_log, self.sender, message), 0)
 
     def direct_output(self, message):
         self.log(message, -1)

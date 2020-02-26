@@ -5,6 +5,7 @@ from PyQt5 import QtCore
 
 
 class Record:
+    # Empty class, serves as a "record" in Pascal or a "struct" in C/C++.
     pass
 
 
