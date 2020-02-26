@@ -1,23 +1,33 @@
+from PyQt5 import QtCore
+
+
 class Logger:
-    def __init__(self, sender='', level=1):
+    sig_output = QtCore.pyqtSignal(str)
+
+    def __init__(self, sender, profiles):
         self.sender = sender
-        self.level = level
+        self.profiles = profiles
+
+    def log(self, message, level):
+        if not isinstance(message, str):
+            message = str(message)
+        for i, profile in enumerate(self.profiles):
+            if (profile.level <= level) or (level < 0):
+                profile.output.write(message + '\n')
+                if i == 0:
+                    self.sig_output.emit(message)
 
     def error(self, message):
-        if self.level <= 3:
-            print('[{}/ERROR] {}'.format(self.sender, message))
+        self.log('[{}/ERROR] {}'.format(self.sender, message), 3)
 
     def warning(self, message):
-        if self.level <= 2:
-            print('[{}/WARN] {}'.format(self.sender, message))
+        self.log('[{}/WARN] {}'.format(self.sender, message), 2)
 
     def info(self, message):
-        if self.level <= 1:
-            print('[{}/INFO] {}'.format(self.sender, message))
+        self.log('[{}/INFO] {}'.format(self.sender, message), 1)
 
     def debug(self, message):
-        if self.level <= 0:
-            print('[{}/DEBUG] {}'.format(self.sender, message))
+        self.log('[{}/DEBUG] {}'.format(self.sender, message), 0)
 
-    def server_output(self, message):
-        print('[mc-server] {}'.format(message))
+    def direct_output(self, message):
+        self.log(message, -1)

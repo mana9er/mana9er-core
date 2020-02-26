@@ -5,7 +5,6 @@ import argparse
 from PyQt5 import QtCore
 
 import core
-import listener
 import utils
 
 parser = argparse.ArgumentParser(description='')
@@ -24,7 +23,7 @@ if __name__ == '__main__':
     core_inst = core.Core(configs)
     core_thread = QtCore.QThread()
     core_inst.moveToThread(core_thread)
-    listener = listener.ConsoleListener()
+    listener = utils.ConsoleListener()
     listener.newline.connect(core_inst.command)
     core_thread.started.connect(core_inst.init)
     core_thread.start()

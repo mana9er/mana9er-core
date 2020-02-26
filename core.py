@@ -3,7 +3,8 @@ import sys
 import importlib
 from PyQt5 import QtCore
 import log
-import listener
+import utils
+import notifier
 
 # On core starting:
 # load config
@@ -36,14 +37,25 @@ class Core(QtCore.QObject):
     @QtCore.pyqtSlot()
     def init(self):
         self.init_cwd = os.getcwd()
-        self.logger = log.Logger('mana9er', self.config.log_level)
         self.server_running = False
         self.server = None
         self.server_logs = []
 
+        self.notifier = notifier.Notifier()
+        self.sig_command.connect(self.notifier.on_command)
+        self.sig_server_output.connect(self.notifier.on_server_output)
+
+        stdout_profile = utils.Record()
+        stdout_profile.level = self.config.log_level
+        stdout_profile.output = sys.stdout
+        log_profiles = [stdout_profile]
+        self.logger = log.Logger('mana9er', log_profiles)
+        self.logger.sig_output.connect(self.notifier.sig_output)
+
         # load plugins
         for plugin_name in self.config.plugin_names:
-            plugin_logger = log.Logger(plugin_name, self.config.log_level)
+            plugin_logger = log.Logger(plugin_name, log_profiles)
+            plugin_logger.sig_output.connect(self.notifier.sig_output)
             importlib.import_module(plugin_name).load(plugin_logger, self)  # import plugins, call init function
         self.build_builtin_callback()
         self.start_server()
@@ -104,7 +116,7 @@ class Core(QtCore.QObject):
         new_lines = server_outputs.readAll().splitlines()
         for line in new_lines:
             self.server_logs.append(line)
-            self.logger.server_output(line)
+            self.logger.direct_output(line)
         self.sig_server_output.emit(new_lines)
 
     @QtCore.pyqtSlot()
