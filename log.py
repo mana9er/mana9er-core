@@ -1,4 +1,5 @@
 from PyQt5 import QtCore
+import time
 
 
 class Logger(QtCore.QObject):
