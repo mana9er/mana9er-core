@@ -28,7 +28,6 @@ class Core(QtCore.QObject):
     sig_server_stop = QtCore.pyqtSignal()
     sig_server_output = QtCore.pyqtSignal(list)
     sig_command = QtCore.pyqtSignal(str)
-    core_quit = QtCore.pyqtSignal()
 
     def __init__(self, config):
         super(Core, self).__init__()
@@ -135,8 +134,6 @@ class Core(QtCore.QObject):
             self.server.waitForFinished()  # self.on_server_stop called and self.sig_server_stop emitted
             self.logger.info('The server has been stopped')
         self.logger.info('Safe quiting...')
-        self.logger.debug('core.core_quit emitted, event loop is going to stop')
-        self.core_quit.emit()
         sys.exit(0)
 
     def builtin_cmd(self, cmd):
