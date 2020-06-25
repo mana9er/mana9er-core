@@ -35,7 +35,7 @@ class Core(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def init(self):
-        self.init_cwd = os.getcwd()
+        self.root_dir = __file__
         self.server_running = False
         self.server = None
         self.server_logs = []
@@ -48,10 +48,11 @@ class Core(QtCore.QObject):
         self.logger.sig_output.connect(self.notifier.sig_output)
 
         # load plugins
+        self.plugins = {}
         for plugin_name in self.config.plugin_names:
             plugin_logger = log.Logger(plugin_name, log_profiles)
             plugin_logger.sig_output.connect(self.notifier.sig_output)
-            importlib.import_module(plugin_name).load(plugin_logger, self)  # import plugins, call init function
+            self.plugins[plugin_name] = importlib.import_module(plugin_name).load(plugin_logger, self)  # import plugins, call init function
         self.build_builtin_callback()
         self.start_server()
 
@@ -72,7 +73,7 @@ class Core(QtCore.QObject):
         self.logger.info('Starting server...')
         if not entrance:
             entrance = self.config.default_entrance
-        os.chdir(self.init_cwd)
+        os.chdir(self.root_dir)
         os.chdir(entrance.wd)
         self.server = QtCore.QProcess()
         self.server.readyRead.connect(self.on_server_output)
