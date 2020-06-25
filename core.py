@@ -137,10 +137,11 @@ class Core(QtCore.QObject):
         sys.exit(0)
 
     def builtin_cmd(self, cmd):
+        # cmd starts with self.config.prefix
         self.logger.debug('core.builtin_cmd called with cmd={}'.format(cmd))
-        for key in self.builtin_callback:
-            if cmd == self.config.prefix + key:
-                self.builtin_callback[key]()
+        cmd = cmd[len(self.config.prefix):]
+        if cmd in self.buildtin_callback:
+            self.builtin_callback[cmd]()
 
     @QtCore.pyqtSlot(str)
     def command(self, cmd):
