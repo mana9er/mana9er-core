@@ -40,10 +40,6 @@ class Core(QtCore.QObject):
         self.server = None
         self.server_logs = []
 
-        self.notifier = notifier.Notifier()
-        self.sig_command.connect(self.notifier.on_command)
-        self.sig_server_output.connect(self.notifier.on_server_output)
-
         stdout_profile = utils.Record()
         stdout_profile.level = self.config.log_level
         stdout_profile.output = sys.stdout
