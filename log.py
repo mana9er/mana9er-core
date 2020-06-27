@@ -1,6 +1,13 @@
 from PyQt5 import QtCore
 import time
 
+def deco_factory(prefix, suffix):
+    def deco(s):
+        return prefix + s + suffix
+    return deco
+error_deco = deco_factory('\033[31m', '\033[0m')
+warning_deco = deco_factory('\033[33m', '\033[0m')
+error_deco = deco_factory('\033[1m', '\033[0m')
 
 class Logger(QtCore.QObject):
     sig_output = QtCore.pyqtSignal(str)
@@ -19,20 +26,22 @@ class Logger(QtCore.QObject):
                 if i == 0:
                     self.sig_output.emit(message)
     
-    def format_message(self, message, time_stamp, msg_type, level):
+    def format_message(self, message, time_stamp, msg_type, level, deco=None):
         result = '[{}/{}] {}'.format(self.sender, msg_type, message)
         if time_stamp:
             result = '[{}]'.format(time.strftime('%H:%M:%S')) + result
+        if deco:
+            result = deco(result)
         self.log(result, level)
     
     def error(self, message, time_stamp=None):
-        self.format_message(message, time_stamp, 'ERROR', 3)
+        self.format_message(message, time_stamp, 'ERROR', 3, error_deco)
 
     def warning(self, message, time_stamp=None):
-        self.format_message(message, time_stamp, 'WARN', 2)
+        self.format_message(message, time_stamp, 'WARN', 2, warning_deco)
 
     def info(self, message, time_stamp=None):
-        self.format_message(message, time_stamp, 'INFO', 1)
+        self.format_message(message, time_stamp, 'INFO', 1, info_deco)
 
     def debug(self, message, time_stamp=None):
         self.format_message(message, time_stamp, 'DEBUG', 0)
