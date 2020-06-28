@@ -48,13 +48,16 @@ class Core(QtCore.QObject):
         self.logger.sig_output.connect(self.notifier.sig_output)
 
         # load plugins
-        self.plugins = {}
+        self._plugins = {}
         for plugin_name in self.config.plugin_names:
             plugin_logger = log.Logger(plugin_name, log_profiles)
             plugin_logger.sig_output.connect(self.notifier.sig_output)
-            self.plugins[plugin_name] = importlib.import_module(plugin_name).load(plugin_logger, self)  # import plugins, call init function
+            self._plugins[plugin_name] = importlib.import_module(plugin_name).load(plugin_logger, self)  # import plugins, call init function
         self.build_builtin_callback()
         self.start_server()
+    
+    def get_plugin(self, name):
+        return self._plugins.get(name, None)
 
     def build_builtin_callback(self):
         # Callback functions provided by Core itself
