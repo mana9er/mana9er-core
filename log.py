@@ -34,16 +34,16 @@ class Logger(QtCore.QObject):
             result = deco(result)
         self.log(result, level)
     
-    def error(self, message, time_stamp=None):
+    def error(self, message, time_stamp=True):
         self.format_message(message, time_stamp, 'ERROR', 3, error_deco)
 
-    def warning(self, message, time_stamp=None):
+    def warning(self, message, time_stamp=True):
         self.format_message(message, time_stamp, 'WARN', 2, warning_deco)
 
-    def info(self, message, time_stamp=None):
+    def info(self, message, time_stamp=True):
         self.format_message(message, time_stamp, 'INFO', 1, info_deco)
 
-    def debug(self, message, time_stamp=None):
+    def debug(self, message, time_stamp=False):
         self.format_message(message, time_stamp, 'DEBUG', 0)
 
     def direct_output(self, message):
