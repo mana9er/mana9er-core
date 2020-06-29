@@ -7,7 +7,7 @@ def deco_factory(prefix, suffix):
     return deco
 error_deco = deco_factory('\033[31m', '\033[0m')
 warning_deco = deco_factory('\033[33m', '\033[0m')
-error_deco = deco_factory('\033[1m', '\033[0m')
+info_deco = deco_factory('\033[1m', '\033[0m')
 
 class Logger(QtCore.QObject):
     sig_output = QtCore.pyqtSignal(str)

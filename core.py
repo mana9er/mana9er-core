@@ -4,7 +4,6 @@ import importlib
 from PyQt5 import QtCore
 import log
 import utils
-import notifier
 
 # On core starting:
 # load config
@@ -35,7 +34,7 @@ class Core(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def init(self):
-        self.root_dir = __file__
+        self.root_dir = os.path.dirname(__file__)
         self.server_running = False
         self.server = None
         self.server_logs = []
@@ -45,13 +44,11 @@ class Core(QtCore.QObject):
         stdout_profile.output = sys.stdout
         log_profiles = [stdout_profile]
         self.logger = log.Logger('mana9er', log_profiles)
-        self.logger.sig_output.connect(self.notifier.sig_output)
 
         # load plugins
         self._plugins = {}
         for plugin_name in self.config.plugin_names:
             plugin_logger = log.Logger(plugin_name, log_profiles)
-            plugin_logger.sig_output.connect(self.notifier.sig_output)
             self._plugins[plugin_name] = importlib.import_module(plugin_name).load(plugin_logger, self)  # import plugins, call init function
         self.build_builtin_callback()
         self.start_server()
@@ -140,7 +137,7 @@ class Core(QtCore.QObject):
         # cmd starts with self.config.prefix
         self.logger.debug('core.builtin_cmd called with cmd={}'.format(cmd))
         cmd = cmd[len(self.config.prefix):]
-        if cmd in self.buildtin_callback:
+        if cmd in self.builtin_callback:
             self.builtin_callback[cmd]()
 
     @QtCore.pyqtSlot(str)
