@@ -108,11 +108,12 @@ class Core(QtCore.QObject):
     @QtCore.pyqtSlot()
     def on_server_output(self):
         self.logger.debug('core.on_server_output called')
-        server_outputs = QtCore.QTextStream(self.server)
-        new_lines = server_outputs.readAll().splitlines()
+        server_s = QtCore.QTextStream(self.server)
+        output = server_s.readAll()
+        self.logger.direct_output(output, ending='')
+        new_lines = output.splitlines()
         for line in new_lines:
             self.server_logs.append(line)
-            self.logger.direct_output(line, ending='')
         self.sig_server_output.emit(new_lines)
 
     @QtCore.pyqtSlot()
