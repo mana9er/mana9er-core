@@ -34,7 +34,7 @@ class Core(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def init(self):
-        self.root_dir = os.path.dirname(__file__)
+        self.root_dir = os.path.abspath(os.path.dirname(__file__))
         self.server_running = False
         self.server = None
         self.server_logs = []
@@ -112,7 +112,7 @@ class Core(QtCore.QObject):
         new_lines = server_outputs.readAll().splitlines()
         for line in new_lines:
             self.server_logs.append(line)
-            self.logger.direct_output(line)
+            self.logger.direct_output(line, ending='')
         self.sig_server_output.emit(new_lines)
 
     @QtCore.pyqtSlot()

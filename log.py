@@ -17,12 +17,12 @@ class Logger(QtCore.QObject):
         self.sender = sender
         self.profiles = profiles
 
-    def log(self, message, level):
+    def log(self, message, level, ending='\n'):
         if not isinstance(message, str):
             message = str(message)
         for i, profile in enumerate(self.profiles):
             if (profile.level <= level) or (level < 0):
-                profile.output.write(message + '\n')
+                profile.output.write(message + ending)
                 if i == 0:
                     self.sig_output.emit(message)
     
@@ -46,5 +46,5 @@ class Logger(QtCore.QObject):
     def debug(self, message, time_stamp=False):
         self.format_message(message, time_stamp, 'DEBUG', 0)
 
-    def direct_output(self, message):
-        self.log(message, -1)
+    def direct_output(self, message, ending='\n'):
+        self.log(message, -1, ending)
