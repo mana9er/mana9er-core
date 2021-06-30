@@ -29,7 +29,7 @@ class Logger(QtCore.QObject):
     def format_message(self, message, time_stamp, msg_type, level, deco=None):
         result = '[{}/{}] {}'.format(self.sender, msg_type, message)
         if time_stamp:
-            result = '[{}]'.format(time.strftime('%H:%M:%S')) + result
+            result = '[{}]'.format(time.strftime('%Y-%m-%d %H:%M:%S')) + result
         if deco:
             result = deco(result)
         self.log(result, level)
