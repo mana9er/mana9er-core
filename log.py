@@ -43,7 +43,7 @@ class Logger(QtCore.QObject):
     def info(self, message, time_stamp=True):
         self.format_message(message, time_stamp, 'INFO', 1, info_deco)
 
-    def debug(self, message, time_stamp=False):
+    def debug(self, message, time_stamp=True):
         self.format_message(message, time_stamp, 'DEBUG', 0)
 
     def direct_output(self, message, ending='\n'):
