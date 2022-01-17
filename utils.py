@@ -5,6 +5,8 @@ import time
 import datetime
 from PyQt5 import QtCore
 
+import log
+
 
 class Record:
     # Empty class, serves as a "record" in Pascal or a "struct" in C/C++.
@@ -17,9 +19,9 @@ class Config:
         self.default_entrance.wd = config_dict['default_entrance']['wd']
         self.default_entrance.exec = config_dict['default_entrance']['exec']
         self.plugin_names = config_dict['plugins']
-        self.log_level = config_dict.get('log_level', 1) # default to INFO level
+        self.log_level = config_dict.get('log_level', log.Logger.INFO_LEVEL)
         self.prefix = config_dict['prefix']
-        self.file_log_level = config_dict.get('file_log_level', 0)
+        self.file_log_level = config_dict.get('file_log_level', log.logger.DEBUG_LEVEL)
         self.log_keep_days = config_dict.get('log_keep_days', 15)
 
 
