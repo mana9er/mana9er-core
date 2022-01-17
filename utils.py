@@ -19,6 +19,7 @@ class Config:
         self.plugin_names = config_dict['plugins']
         self.log_level = config_dict.get('log_level', 1) # default to INFO level
         self.prefix = config_dict['prefix']
+        self.file_log_level = config_dict.get('file_log_level', 0)
         self.log_keep_days = config_dict.get('log_keep_days', 15)
 
 
