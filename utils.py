@@ -34,12 +34,11 @@ class ConsoleListener(QtCore.QObject):
                 self.newline.emit(line)
 
 
-class FileProfile:
+class FileOutput:
     # Implement 'write' method for logging to files
     # Used in Logger.profiles
-    def __init__(self, root_dir, log_level=0, keep_days=15):
+    def __init__(self, root_dir, keep_days=15):
         self.root_dir = root_dir
-        self.level = log_level          # this is required by Logger
         self.keep_days = keep_days      # keep_days = 0 means keep forever
         self.logs_dir = os.path.join(root_dir, 'logs')
         if not os.path.exists(self.logs_dir):

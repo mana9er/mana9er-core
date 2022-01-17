@@ -11,6 +11,10 @@ info_deco = deco_factory('\033[1m', '\033[0m')
 
 class Logger(QtCore.QObject):
     sig_output = QtCore.pyqtSignal(str)
+    ERROR_LEVEL = 3
+    WARN_LEVEL  = 2
+    INFO_LEVEL  = 1
+    DEBUG_LEVEL = 0
 
     def __init__(self, sender, profiles):
         super(Logger, self).__init__()
@@ -35,16 +39,16 @@ class Logger(QtCore.QObject):
         self.log(result, level)
     
     def error(self, message, time_stamp=True):
-        self.format_message(message, time_stamp, 'ERROR', 3, error_deco)
+        self.format_message(message, time_stamp, 'ERROR', Logger.ERROR_LEVEL, error_deco)
 
     def warning(self, message, time_stamp=True):
-        self.format_message(message, time_stamp, 'WARN', 2, warning_deco)
+        self.format_message(message, time_stamp, 'WARN', Logger.WARN_LEVEL, warning_deco)
 
     def info(self, message, time_stamp=True):
-        self.format_message(message, time_stamp, 'INFO', 1, info_deco)
+        self.format_message(message, time_stamp, 'INFO', Logger.INFO_LEVEL, info_deco)
 
     def debug(self, message, time_stamp=True):
-        self.format_message(message, time_stamp, 'DEBUG', 0)
+        self.format_message(message, time_stamp, 'DEBUG', Logger.DEBUG_LEVEL)
 
     def direct_output(self, message, ending='\n'):
         self.log(message, -1, ending)
