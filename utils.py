@@ -21,7 +21,7 @@ class Config:
         self.plugin_names = config_dict['plugins']
         self.log_level = config_dict.get('log_level', log.Logger.INFO_LEVEL)
         self.prefix = config_dict['prefix']
-        self.file_log_level = config_dict.get('file_log_level', log.logger.DEBUG_LEVEL)
+        self.file_log_level = config_dict.get('file_log_level', log.Logger.DEBUG_LEVEL)
         self.log_keep_days = config_dict.get('log_keep_days', 15)
 
 
