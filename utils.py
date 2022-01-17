@@ -17,11 +17,9 @@ class Config:
         self.default_entrance.wd = config_dict['default_entrance']['wd']
         self.default_entrance.exec = config_dict['default_entrance']['exec']
         self.plugin_names = config_dict['plugins']
-        if 'log_level' in config_dict:
-            self.log_level = config_dict['log_level']
-        else:
-            self.log_level = 1  # INFO level
+        self.log_level = config_dict.get('log_level', 1) # default to INFO level
         self.prefix = config_dict['prefix']
+        self.log_keep_days = config_dict.get('log_keep_days', 15)
 
 
 class ConsoleListener(QtCore.QObject):
@@ -37,7 +35,7 @@ class ConsoleListener(QtCore.QObject):
 class FileOutput:
     # Implement 'write' method for logging to files
     # Used in Logger.profiles
-    def __init__(self, root_dir, keep_days=15):
+    def __init__(self, root_dir, keep_days):
         self.root_dir = root_dir
         self.keep_days = keep_days      # keep_days = 0 means keep forever
         self.logs_dir = os.path.join(root_dir, 'logs')

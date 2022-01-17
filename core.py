@@ -44,7 +44,7 @@ class Core(QtCore.QObject):
         stdout_profile.output = sys.stdout
         file_profile = utils.Record()
         file_profile.level = log.Logger.DEBUG_LEVEL         # default: debug level
-        file_profile.output = utils.FileOutput(self.root_dir)
+        file_profile.output = utils.FileOutput(self.root_dir, self.config.log_keep_days)
         log_profiles = [stdout_profile, file_profile]
         self.logger = log.Logger('mana9er', log_profiles)
 
