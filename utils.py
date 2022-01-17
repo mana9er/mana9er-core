@@ -52,9 +52,9 @@ class FileOutput:
                 self.cur_file.close()
             new_log_file = os.path.join(self.logs_dir, datestr + '.log')
             if os.path.exists(new_log_file):
-                self.cur_file = open(new_log_file, 'a')
+                self.cur_file = open(new_log_file, 'a', encoding='utf-8')
             else:
-                self.cur_file = open(new_log_file, 'w')
+                self.cur_file = open(new_log_file, 'w', encoding='utf-8')
             self.cur_date = datestr
             self._rm_expired_logs()
 
