@@ -79,3 +79,4 @@ class FileProfile:
     def write(self, data):
         self._change_log_file()
         self.cur_file.write(data)
+        self.cur_file.flush()
