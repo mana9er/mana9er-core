@@ -42,7 +42,8 @@ class Core(QtCore.QObject):
         stdout_profile = utils.Record()
         stdout_profile.level = self.config.log_level
         stdout_profile.output = sys.stdout
-        log_profiles = [stdout_profile]
+        file_profile = utils.FileProfile()
+        log_profiles = [stdout_profile, file_profile]
         self.logger = log.Logger('mana9er', log_profiles)
 
         # load plugins
