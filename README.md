@@ -1,2 +1,2 @@
-# mc-mana9er
-A scalable framework for management tool of minecraft server
+# mana9er-core
+For documentation, see [mana9er homepage](https://github.com/mana9er).
